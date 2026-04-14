@@ -8,5 +8,7 @@ urlpatterns=[
     path('',views.mainpage),
     path('catalog/',views.catalog),
     path('catalog/<int:pk>/',views.produkt_detail),
+    path('cart',views.cart),
+    
 
 ]

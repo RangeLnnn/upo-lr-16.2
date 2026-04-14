@@ -2,173 +2,82 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Каталог товаров</title>
+    <title>Каталог</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        h1 {
+            color: #333;
+        }
+        .catalog {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            width: 220px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e53935;
+        }
+        .stock {
+            color: #4CAF50;
+        }
+        .btn {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #0b7dda;
+        }
+    </style>
 </head>
 <body>
-    <h1>🛒 Каталог товаров</h1>
+    <h1>🛍️ Каталог товаров</h1>
     
-    <p>Выберите товары для граффити из нашего ассортимента:</p>
+    <div class="catalog">
+        {% for product in products %}
+            <div class="card">
+                <h3>{{ product.name }}</h3>
+                <p><strong>{{ product.category.name }}</strong></p>
+                <p>{{ product.manufacter.name }}</p>
+                <p class="price">{{ product.price }} BYN</p>
+                <p class="stock">
+                    {% if product.quantity > 0 %}
+                        ✅ В наличии: {{ product.quantity }} шт.
+                    {% else %}
+                        ❌ Нет в наличии
+                    {% endif %}
+                </p>
+                <p>{{ product.description|truncatewords:10 }}</p>
+                <a href="/shop/catalog/{{ product.pk }}/" class="btn">Подробнее →</a>
+            </div>
+        {% empty %}
+            <p>Товаров пока нет</p>
+        {% endfor %}
+    </div>
     
-    <h2>🎨 Баллончики Montana</h2>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Наличие</th>
-        </tr>
-        <tr>
-            <td>Montana Black 400мл</td>
-            <td>Профессиональная краска, матовая</td>
-            <td>350 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Montana Gold 400мл</td>
-            <td>Акриловая краска, глянцевая</td>
-            <td>450 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Montana White 400мл</td>
-            <td>Белая краска повышенной укрывистости</td>
-            <td>500 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-    </table>
-    
-    <h2>🎨 Баллончики Molotow</h2>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Наличие</th>
-        </tr>
-        <tr>
-            <td>Molotow Premium 400мл</td>
-            <td>Премиум качество, высокая пигментация</td>
-            <td>400 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Molotow Burner Chrome</td>
-            <td>Хромированная краска, зеркальный эффект</td>
-            <td>600 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Molotow CoversAll</td>
-            <td>Супер-укрывистая краска для любых поверхностей</td>
-            <td>550 руб</td>
-            <td>❌ Нет в наличии</td>
-        </tr>
-    </table>
-    
-    <h2>🔲 Трафареты</h2>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Наличие</th>
-        </tr>
-        <tr>
-            <td>Трафарет "Буквы"</td>
-            <td>Набор букв русского алфавита, 10 см</td>
-            <td>100 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Трафарет "Цифры"</td>
-            <td>Цифры от 0 до 9, 15 см</td>
-            <td>120 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Трафарет "Орнамент"</td>
-            <td>Сложные геометрические узоры, многоразовый</td>
-            <td>250 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Трафарет "Граффити-шрифт"</td>
-            <td>Стилизованные буквы для граффити</td>
-            <td>300 руб</td>
-            <td>❌ Нет в наличии</td>
-        </tr>
-    </table>
-    
-    <h2>😷 Защитные маски</h2>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Наличие</th>
-        </tr>
-        <tr>
-            <td>Респиратор 3M 6200</td>
-            <td>Полумаска с фильтрами от паров краски</td>
-            <td>800 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Маска одноразовая FFP3</td>
-            <td>Защита от аэрозолей и пыли</td>
-            <td>200 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Респиратор Jeta Safety</td>
-            <td>Многоразовый с угольным фильтром</td>
-            <td>500 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-    </table>
-    
-    <h2>🎁 Наборы "Старт"</h2>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Наличие</th>
-        </tr>
-        <tr>
-            <td>Набор "Новичок"</td>
-            <td>3 баллончика Montana + трафарет + перчатки</td>
-            <td>1200 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Набор "Продвинутый"</td>
-            <td>6 баллончиков + 2 трафарета + маска + перчатки</td>
-            <td>2500 руб</td>
-            <td>✅ В наличии</td>
-        </tr>
-        <tr>
-            <td>Набор "Профи"</td>
-            <td>10 баллончиков + 5 трафаретов + респиратор + кэпы</td>
-            <td>4500 руб</td>
-            <td>❌ Нет в наличии</td>
-        </tr>
-    </table>
-    
-    <h3>📊 Сводка по каталогу:</h3>
-    <ul>
-        <li>✅ Всего категорий: 5</li>
-        <li>✅ Всего товаров: 16</li>
-        <li>✅ В наличии: 13 товаров</li>
-        <li>❌ Нет в наличии: 3 товара</li>
-    </ul>
-    
-    <hr>
-    
-    <p>
-        <a href="/shop/">🏠 На главную</a> | 
-        <a href="/shop/about/">🏪 О магазине</a> | 
-        <a href="/shop/author/">📝 Об авторе</a>
+    <p style="margin-top: 30px;">
+        <a href="/shop/">← На главную</a>
     </p>
 </body>
 </html>
