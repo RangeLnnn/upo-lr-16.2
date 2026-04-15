@@ -45,13 +45,38 @@
             text-decoration: none;
             border-radius: 4px;
             margin-top: 10px;
+            margin-right: 5px;
+        }
+        .btn-cart {
+            background: #4CAF50;
+        }
+        .btn-cart:hover {
+            background: #45a049;
         }
         .btn:hover {
-            background: #0b7dda;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
+    <!-- ШАПКА -->
+    <div style="background: #2196F3; color: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 24px; font-weight: bold;">
+            <a href="/shop/" style="color: white; text-decoration: none;">🛍️ МойМагазин</a>
+        </div>
+        <div>
+            <a href="/shop/catalog/" style="color: white; margin-right: 15px;">Каталог</a>
+            {% if user.is_authenticated %}
+                <span style="margin-right: 15px;">👤 {{ user.username }}</span>
+                <a href="/shop/cart/" style="color: white; margin-right: 15px;">🛒 Корзина</a>
+                <a href="/shop/logout/" style="color: white;">🚪 Выйти</a>
+            {% else %}
+                <a href="/shop/login/" style="color: white; margin-right: 15px;">🔐 Войти</a>
+                <a href="/shop/registrate/" style="color: white;">📝 Регистрация</a>
+            {% endif %}
+        </div>
+    </div>
+
     <h1>🛍️ Каталог товаров</h1>
     
     <div class="catalog">
@@ -69,7 +94,12 @@
                     {% endif %}
                 </p>
                 <p>{{ product.description|truncatewords:10 }}</p>
+                
                 <a href="/shop/catalog/{{ product.pk }}/" class="btn">Подробнее →</a>
+                
+                {% if user.is_authenticated and product.quantity > 0 %}
+                    <a href="/shop/cart/add/{{ product.pk }}/" class="btn btn-cart">🛒 В корзину</a>
+                {% endif %}
             </div>
         {% empty %}
             <p>Товаров пока нет</p>
