@@ -47,6 +47,11 @@
         .btn-back {
             background: #757575;
         }
+        .btn-delete {
+            background: #f44336;
+            padding: 6px 12px;
+            font-size: 14px;
+        }
         .btn:hover {
             opacity: 0.9;
         }
@@ -58,6 +63,24 @@
     </style>
 </head>
 <body>
+    <!-- ШАПКА -->
+    <div style="background: #2196F3; color: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 24px; font-weight: bold;">
+            <a href="/shop/" style="color: white; text-decoration: none;">🛍️ МойМагазин</a>
+        </div>
+        <div>
+            <a href="/shop/catalog/" style="color: white; margin-right: 15px;">Каталог</a>
+            {% if user.is_authenticated %}
+                <span style="margin-right: 15px;">👤 {{ user.username }}</span>
+                <a href="/shop/cart/" style="color: white; margin-right: 15px;">🛒 Корзина</a>
+                <a href="/shop/logout/" style="color: white;">🚪 Выйти</a>
+            {% else %}
+                <a href="/shop/login/" style="color: white; margin-right: 15px;">🔐 Войти</a>
+                <a href="/shop/registrate/" style="color: white;">📝 Регистрация</a>
+            {% endif %}
+        </div>
+    </div>
+
     <h1>🛒 Корзина</h1>
     
     {% if items %}
@@ -67,6 +90,7 @@
                 <th>Цена</th>
                 <th>Количество</th>
                 <th>Сумма</th>
+                <th>Действие</th>
             </tr>
             {% for item in items %}
             <tr>
@@ -74,6 +98,13 @@
                 <td>{{ item.product.price }} руб.</td>
                 <td>{{ item.quantity }}</td>
                 <td>{% widthratio item.product.price 1 item.quantity %} руб.</td>
+                <td>
+                    <a href="/shop/cart/remove/{{ item.id }}/" 
+                       class="btn btn-delete" 
+                       onclick="return confirm('Удалить {{ item.product.name }} из корзины?')">
+                        🗑️ Удалить
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </table>
