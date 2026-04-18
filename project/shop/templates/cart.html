@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 900px;
+            max-width: 1000px;
             margin: 20px auto;
             padding: 0 15px;
         }
@@ -43,6 +43,8 @@
             text-decoration: none;
             border-radius: 4px;
             margin-right: 10px;
+            border: none;
+            cursor: pointer;
         }
         .btn-back {
             background: #757575;
@@ -52,6 +54,11 @@
             padding: 6px 12px;
             font-size: 14px;
         }
+        .btn-update {
+            background: #ff9800;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
         .btn:hover {
             opacity: 0.9;
         }
@@ -59,6 +66,22 @@
             text-align: center;
             padding: 40px;
             color: #999;
+        }
+        .quantity-form {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .quantity-input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .action-cell {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -83,6 +106,29 @@
 
     <h1>🛒 Корзина</h1>
     
+    {% if messages %}
+        <div style="margin: 10px 0;">
+            {% for message in messages %}
+                <div style="
+                    padding: 12px 20px;
+                    border-radius: 4px;
+                    {% if message.tags == 'success' %}
+                        background: #d4edda;
+                        color: #155724;
+                    {% elif message.tags == 'warning' %}
+                        background: #fff3cd;
+                        color: #856404;
+                    {% elif message.tags == 'error' %}
+                        background: #f8d7da;
+                        color: #721c24;
+                    {% endif %}
+                ">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     {% if items %}
         <table>
             <tr>
@@ -90,15 +136,26 @@
                 <th>Цена</th>
                 <th>Количество</th>
                 <th>Сумма</th>
-                <th>Действие</th>
+                <th>Действия</th>
             </tr>
             {% for item in items %}
             <tr>
                 <td>{{ item.product.name }}</td>
-                <td>{{ item.product.price }} руб.</td>
-                <td>{{ item.quantity }}</td>
-                <td>{% widthratio item.product.price 1 item.quantity %} руб.</td>
+                <td>{{ item.elements_price }} руб.</td>
                 <td>
+                    <form method="post" action="/shop/cart/update/{{ item.id }}/" class="quantity-form">
+                        {% csrf_token %}
+                        <input type="number" 
+                               name="quantity" 
+                               value="{{ item.quantity }}" 
+                               min="0" 
+                               max="{{ item.product.quantity }}"
+                               class="quantity-input">
+                        <button type="submit" class="btn btn-update" title="Обновить количество">↻</button>
+                    </form>
+                </td>
+                <td>{% widthratio item.product.price 1 item.quantity %} руб.</td>
+                <td class="action-cell">
                     <a href="/shop/cart/remove/{{ item.id }}/" 
                        class="btn btn-delete" 
                        onclick="return confirm('Удалить {{ item.product.name }} из корзины?')">
@@ -110,7 +167,7 @@
         </table>
         
         <div class="total">
-            Итого: {{ total_sum }} руб.
+            Итого: {{ general_price }} руб.
         </div>
         
         <p>

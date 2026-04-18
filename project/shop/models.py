@@ -32,7 +32,9 @@ class Cart(models.Model):
     def __str__(self):
         return f"Корзина пользователя {self.user.username}"
     def general_price(self):
-        pass
+        items=self.cartselement_set.all()
+        price=sum(item.product.price*item.quantity for item in items)
+        return price
 
 class CartsElement(models.Model):
     cart=models.ForeignKey(Cart,on_delete=models.CASCADE)
@@ -41,4 +43,4 @@ class CartsElement(models.Model):
     def __str__(self):
         return f"{self.product.name} - {self.product.quantity} шт."
     def elements_price(self):
-        return self.product.price*self.product.quantity
+        return self.product.price*self.quantity

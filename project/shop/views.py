@@ -21,8 +21,9 @@ def cart(request):
     if cart:
         items = CartsElement.objects.filter(cart_id=cart.id)
     else:
-        items = []
-    return render(request,'cart.html',{'items':items})
+        items = []  
+    general_price=cart.general_price()     
+    return render(request,'cart.html',{'items':items,'general_price':general_price})
 def registrate(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -52,7 +53,11 @@ def remove_product(request,product_id):
     return redirect('/shop/cart/')
 @login_required
 def update_elements_in_cart(request,product_id):
-    pass
+    cart_item=CartsElement.objects.get(pk=product_id)
+    new_quntity=request.POST.get('quantity')
+    cart_item.quantity=new_quntity
+    cart_item.save()
+    return redirect('/shop/cart/')
 #надо сделать так чтобы при удалении удалялся только один в теории и сделать обновление чтобы обновлялось кол-во
 
     
