@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная - МойМагазин{% endblock %}
+
+{% block content %}
+    
+    <!-- HERO-СЕКЦИЯ -->
+    <div class="bg-light p-5 rounded-3 mb-5 text-center">
+        <h1 class="display-4">🛍️ МойМагазин</h1>
+        <p class="lead">Лучшие товары по лучшим ценам. Доставка по всей стране.</p>
+        <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Перейти в каталог</a>
+    </div>
+    
+    <!-- ПОПУЛЯРНЫЕ ТОВАРЫ -->
+    <h2 class="mb-4">🔥 Популярные товары</h2>
+    <div class="row">
+        {% for product in popular_products %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if product.products_photo %}
+                        <img src="{{ product.products_photo.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/no-photo.png' %}" class="card-img-top" alt="Нет фото" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.manufacter.name }}</p>
+                        <p class="fw-bold fs-5">{{ product.price }} BYN</p>
+                        <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Товаров пока нет</p>
+        {% endfor %}
+    </div>
+    
+    <!-- КАТЕГОРИИ -->
+    <h2 class="mb-4 mt-5">📂 Категории</h2>
+    <div class="row">
+        {% for category in categories %}
+            <div class="col-md-3 col-6 mb-3">
+                <a href="{% url 'catalog' %}?category={{ category.id }}" class="text-decoration-none">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ category.name }}</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p>Категорий пока нет</p>
+        {% endfor %}
+    </div>
+    
+{% endblock %}

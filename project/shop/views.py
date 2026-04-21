@@ -3,6 +3,13 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
 from .models import *
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
+from django.conf import settings
+from .utils import generate_receipt
+from rest_framework import viewsets
+from .seriralizers import *
+
+
 def aboutauthor(request):
     return render(request,'aboutauthor.html')
 def aboutshop(request):
@@ -58,8 +65,56 @@ def update_elements_in_cart(request,product_id):
     cart_item.quantity=new_quntity
     cart_item.save()
     return redirect('/shop/cart/')
-#надо сделать так чтобы при удалении удалялся только один в теории и сделать обновление чтобы обновлялось кол-во
-
+@login_required
+def checkout(request):
+    if request.method == 'POST':
+        subject=request.user.username
+        message=f"Спасибо за покупку {request.user.username}"
+        from_email=settings.EMAIL_HOST_USER
+        to_email=request.POST.get('email')
+        email=EmailMessage(
+            subject=subject,
+            body=message,
+            from_email=from_email,
+            to=[to_email],
+        )
+        cart = Cart.objects.filter(user_id=request.user.id).first()
+        if cart:
+            items = CartsElement.objects.filter(cart_id=cart.id)
+        else:
+            items = []  
+        general_price=cart.general_price() 
+        excel_file=generate_receipt(user=request.user,items=items,total_price=general_price)
+        email.attach("receipt.xlsx", excel_file.read(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        email.send()
+        return redirect('/shop/cart/')
+    else:
+        cart = Cart.objects.filter(user_id=request.user.id).first()
+        if cart:
+            items = CartsElement.objects.filter(cart_id=cart.id)
+        else:
+            items = []  
+        general_price=cart.general_price() 
+        return render(request,'checkout.html',{'items':items,'general_price':general_price})
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+class ProductCategoryViewSet(viewsets.ModelViewSet):
+    queryset = ProductCategory.objects.all()
+    serializer_class = ProductCategorySerializer
+class ManufacterViewSet(viewsets.ModelViewSet):
+    queryset = Manufacter.objects.all()
+    serializer_class = ManufacterSerializer
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+class CartsElementViewSet(viewsets.ModelViewSet):
+    queryset=CartsElement.objects.all()
+    serializer_class=CartsElementSerializer
+def index(request):
+    popular_products=Product.objects.all().order_by('-id')[:6]
+    categories=ProductCategory.objects.all()
+    return render(request,'index.html',{'popular_products':popular_products,'categories':categories})
     
 
 
