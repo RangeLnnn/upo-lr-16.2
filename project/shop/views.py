@@ -8,6 +8,7 @@ from django.conf import settings
 from .utils import generate_receipt
 from rest_framework import viewsets
 from .seriralizers import *
+from django.core.paginator import Paginator
 
 
 def aboutauthor(request):
@@ -16,12 +17,12 @@ def aboutshop(request):
     return render(request,'aboutshop.html')
 def mainpage(request):
     return render(request,'mainpage.html')
-def catalog(request):
-    prosucts = Product.objects.all()
-    return render(request,'catalog.html',{'products':prosucts})
+#def catalog(request):
+    #products = Product.objects.all()
+    #return render(request,'catalog.html',{'products':products})
 def produkt_detail(request,pk):
     product = Product.objects.get(pk=pk)
-    return render(request,'productdetail.html',{'product':product})
+    return render(request,'newproductdetail.html',{'product':product})
 @login_required
 def cart(request):
     cart = Cart.objects.filter(user_id=request.user.id).first()
@@ -115,7 +116,16 @@ def index(request):
     popular_products=Product.objects.all().order_by('-id')[:6]
     categories=ProductCategory.objects.all()
     return render(request,'index.html',{'popular_products':popular_products,'categories':categories})
-    
+def maincatalog(request):
+    products = Product.objects.all()
+    paginator = Paginator(products,9)
+    page_number=request.GET.get('page')
+    pageobj = paginator.get_page(page_number)
+    categories = ProductCategory.objects.all()
+    manufacters=Manufacter.objects.all()
+    return render(request,'newcatalog.html',{ 'products': pageobj,'categories': categories,'manufacturers': manufacters,})
+
+
 
 
 
