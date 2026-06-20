@@ -9,6 +9,9 @@ from .utils import generate_receipt
 from rest_framework import viewsets
 from .seriralizers import *
 from django.core.paginator import Paginator
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 
 def aboutauthor(request):
@@ -98,8 +101,25 @@ def checkout(request):
         general_price=cart.general_price() 
         return render(request,'checkout.html',{'items':items,'general_price':general_price})
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        
+        category = self.request.query_params.get('category')
+        manufacturer = self.request.query_params.get('manufacturer')
+        search = self.request.query_params.get('search')
+
+        if category:
+            queryset = queryset.filter(category_id=category)
+            
+        if manufacturer:
+            queryset = queryset.filter(manufacter_id=manufacturer)
+            
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+
+        return queryset
 class ProductCategoryViewSet(viewsets.ModelViewSet):
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
@@ -109,6 +129,36 @@ class ManufacterViewSet(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+    @action(detail=False, methods=['post'], url_path='add')
+    def add_to_cart(self, request):
+        product_id = request.data.get('product_id')
+        quantity = int(request.data.get('quantity', 1))
+
+        if not product_id:
+            return Response({'error': 'product_id required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Проверяем, авторизован ли пользователь (для API)
+        if not request.user.is_authenticated:
+            return Response({'error': 'Пользователь не авторизован'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Получаем товар
+        product = get_object_or_404(Product, pk=product_id)
+        
+        # Находим или создаем корзину для текущего юзера
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        
+        # Находим или создаем элемент в корзине
+        cart_item, item_created = CartsElement.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        if not item_created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        return Response({'success': True, 'message': 'Товар добавлен в корзину'}, status=status.HTTP_200_OK)
 class CartsElementViewSet(viewsets.ModelViewSet):
     queryset=CartsElement.objects.all()
     serializer_class=CartsElementSerializer

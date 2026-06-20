@@ -10,7 +10,17 @@ function loadProducts() {
         </div>
     `;
     
-    fetch('/shop/api/product/')
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.get('search') || '';
+    const category = urlParams.get('category') || '';
+    const manufacturer = urlParams.get('manufacturer') || '';
+
+    let apiUrl = '/shop/api/product/?';
+    if (search) apiUrl += `search=${encodeURIComponent(search)}&`;
+    if (category) apiUrl += `category=${category}&`;
+    if (manufacturer) apiUrl += `manufacturer=${manufacturer}&`;
+    
+    fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Ошибка загрузки');
@@ -26,6 +36,7 @@ function loadProducts() {
             }
             
             products.forEach(product => {
+                // ВНИМАНИЕ: Заменили <button onclick="showDetail..."> на прямую ссылку <a>
                 const card = `
                     <div class="col-sm-6 col-md-4 col-lg-4 mb-4">
                         <div class="card h-100">
@@ -34,7 +45,7 @@ function loadProducts() {
                                 <p class="fw-bold">${product.price} BYN</p>
                             </div>
                             <div class="card-footer bg-white border-0">
-                                <button class="btn btn-outline-primary w-100" onclick="showDetail(${product.id})">Подробнее</button>
+                                <a class="btn btn-outline-primary w-100" href="/shop/catalog/${product.id}/">Подробнее</a>
                                 <button class="btn btn-success w-100 mt-2" onclick="addToCart(${product.id})">🛒 В корзину</button>
                             </div>
                         </div>
