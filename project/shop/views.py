@@ -12,6 +12,9 @@ from django.core.paginator import Paginator
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from .permissions import IsAdminOrReadOnly
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 
 def aboutauthor(request):
@@ -72,37 +75,60 @@ def update_elements_in_cart(request,product_id):
 @login_required
 def checkout(request):
     if request.method == 'POST':
-        subject=request.user.username
-        message=f"Спасибо за покупку {request.user.username}"
-        from_email=settings.EMAIL_HOST_USER
-        to_email=request.POST.get('email')
-        email=EmailMessage(
+        subject = request.user.username
+        message = f"Спасибо за покупку {request.user.username}"
+        from_email = settings.EMAIL_HOST_USER
+        to_email = request.POST.get('email')
+        
+        email = EmailMessage(
             subject=subject,
             body=message,
             from_email=from_email,
             to=[to_email],
         )
+        
         cart = Cart.objects.filter(user_id=request.user.id).first()
-        if cart:
-            items = CartsElement.objects.filter(cart_id=cart.id)
-        else:
-            items = []  
-        general_price=cart.general_price() 
-        excel_file=generate_receipt(user=request.user,items=items,total_price=general_price)
-        email.attach("receipt.xlsx", excel_file.read(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        email.send()
+        
+        # Превращаем QuerySet в реальный список объектов прямо сейчас,
+        # чтобы Django не потерял их при работе с базой данных
+        items = list(CartsElement.objects.filter(cart=cart)) if cart else []
+        
+        if items:
+            general_price = cart.general_price()
+            
+            # Сначала создаем заказ
+            order = Order.objects.create(
+                user=request.user,
+                total_price=general_price,
+                status='NEW'
+            )
+            
+            # Проходим по сохраненному списку
+            for item in items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+
+            # Передаем этот же список в генератор чека
+            excel_file = generate_receipt(user=request.user, items=items, total_price=general_price)
+            email.attach("receipt.xlsx", excel_file.read(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            email.send()
+            
+            # Удаляем элементы корзины из базы только ПОСЛЕ успешной отправки
+            CartsElement.objects.filter(cart=cart).delete()
+        
         return redirect('/shop/cart/')
     else:
         cart = Cart.objects.filter(user_id=request.user.id).first()
-        if cart:
-            items = CartsElement.objects.filter(cart_id=cart.id)
-        else:
-            items = []  
-        general_price=cart.general_price() 
-        return render(request,'checkout.html',{'items':items,'general_price':general_price})
+        items = CartsElement.objects.filter(cart=cart) if cart else []
+        general_price = cart.general_price() if cart else 0
+        return render(request, 'checkout.html', {'items': items, 'general_price': general_price})
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-
+    permission_classes = [IsAdminOrReadOnly]  
     def get_queryset(self):
         queryset = Product.objects.all()
         
@@ -137,17 +163,13 @@ class CartViewSet(viewsets.ModelViewSet):
         if not product_id:
             return Response({'error': 'product_id required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Проверяем, авторизован ли пользователь (для API)
         if not request.user.is_authenticated:
             return Response({'error': 'Пользователь не авторизован'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Получаем товар
         product = get_object_or_404(Product, pk=product_id)
         
-        # Находим или создаем корзину для текущего юзера
         cart, created = Cart.objects.get_or_create(user=request.user)
         
-        # Находим или создаем элемент в корзине
         cart_item, item_created = CartsElement.objects.get_or_create(
             cart=cart,
             product=product,
@@ -175,9 +197,40 @@ def maincatalog(request):
     manufacters=Manufacter.objects.all()
     return render(request,'newcatalog.html',{ 'products': pageobj,'categories': categories,'manufacturers': manufacters,})
 
+class UserMeView(APIView):
+    permission_classes = [IsAuthenticated] 
 
+    def get(self, request):
+        profile = get_object_or_404(Profile, user=request.user)
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
 
+    def patch(self, request):
+        profile = get_object_or_404(Profile, user=request.user)
+        serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class OrderViewSet(viewsets.ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated] 
+
+    def get_queryset(self):
+        user = self.request.user
+        
+        if hasattr(user, 'profile') and user.profile.role == 'ADMIN':
+            return Order.objects.all().order_by('-created_at')
+        
+        return Order.objects.filter(user=user).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+@login_required
+def profile_page(request):
+    return render(request, 'profile.html')
 
 
 

@@ -15,6 +15,30 @@
             border-bottom: 2px solid #2196F3;
             padding-bottom: 10px;
         }
+        .header-nav {
+            background: #2196F3;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+        }
+        .header-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header-links a {
+            margin-left: 15px;
+        }
+        .user-info {
+            margin-left: 15px;
+        }
         .form-group {
             margin-bottom: 20px;
         }
@@ -70,24 +94,22 @@
     </style>
 </head>
 <body>
-    <!-- ШАПКА -->
-    <div style="background: #2196F3; color: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 24px; font-weight: bold;">
-            <a href="/shop/" style="color: white; text-decoration: none;">🛍️ МойМагазин</a>
+    <div class="header-nav">
+        <div class="header-brand">
+            <a href="/shop/">МойМагазин</a>
         </div>
-        <div>
-            <a href="/shop/catalog/" style="color: white; margin-right: 15px;">Каталог</a>
-            <span style="margin-right: 15px;">👤 {{ user.username }}</span>
-            <a href="/shop/cart/" style="color: white; margin-right: 15px;">🛒 Корзина</a>
-            <a href="/shop/logout/" style="color: white;">🚪 Выйти</a>
+        <div class="header-links">
+            <a href="/shop/catalog/">Каталог</a>
+            <span class="user-info">Пользователь: {{ user.username }}</span>
+            <a href="/shop/cart/">Корзина</a>
+            <a href="/shop/logout/">Выйти</a>
         </div>
     </div>
 
-    <h1>📦 Оформление заказа</h1>
+    <h1>Оформление заказа</h1>
     
-    <!-- Сводка по заказу -->
     <div class="order-summary">
-        <h3>Ваш заказ:</h3>
+        <h3>Ваш заказ</h3>
         {% for item in items %}
             <p>{{ item.product.name }} — {{ item.quantity }} шт. × {{ item.product.price }} руб. = {{ item.elements_price }} руб.</p>
         {% endfor %}
@@ -95,23 +117,22 @@
         <p class="total">Итого к оплате: {{ general_price }} руб.</p>
     </div>
     
-    <!-- Форма оформления -->
     <form method="post">
         {% csrf_token %}
         
         <div class="form-group">
-            <label for="email">📧 Email для отправки чека:</label>
-            <input type="email" name="email" id="email" placeholder="your@email.com" value="{{ user.email }}" required>
+            <label for="email">Email для отправки чека:</label>
+            <input type="email" name="email" id="email" placeholder="example@mail.ru" value="{{ user.email }}" required>
         </div>
         
         <div class="form-group">
-            <label for="comment">💬 Комментарий к заказу (необязательно):</label>
-            <textarea name="comment" id="comment" placeholder="Позвоните за час до доставки..."></textarea>
+            <label for="comment">Комментарий к заказу (необязательно):</label>
+            <textarea name="comment" id="comment" placeholder="Дополнительная информация по доставке..."></textarea>
         </div>
         
         <p>
-            <button type="submit" class="btn">✅ Подтвердить заказ</button>
-            <a href="/shop/cart/" class="btn btn-back">← Вернуться в корзину</a>
+            <button type="submit" class="btn">Подтвердить заказ</button>
+            <a href="/shop/cart/" class="btn btn-back">Вернуться в корзину</a>
         </p>
     </form>
 </body>

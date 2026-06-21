@@ -13,6 +13,30 @@
         h1 {
             color: #333;
         }
+        .header-nav {
+            background: #2196F3;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+        }
+        .header-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header-links a {
+            margin-left: 15px;
+        }
+        .user-info {
+            margin-left: 15px;
+        }
         .catalog {
             display: flex;
             flex-wrap: wrap;
@@ -34,8 +58,11 @@
             font-weight: bold;
             color: #e53935;
         }
-        .stock {
+        .stock-in {
             color: #4CAF50;
+        }
+        .stock-out {
+            color: #757575;
         }
         .btn {
             display: inline-block;
@@ -46,6 +73,7 @@
             border-radius: 4px;
             margin-top: 10px;
             margin-right: 5px;
+            border: none;
         }
         .btn-cart {
             background: #4CAF50;
@@ -59,25 +87,24 @@
     </style>
 </head>
 <body>
-    <!-- ШАПКА -->
-    <div style="background: #2196F3; color: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 24px; font-weight: bold;">
-            <a href="/shop/" style="color: white; text-decoration: none;">🛍️ МойМагазин</a>
+    <div class="header-nav">
+        <div class="header-brand">
+            <a href="/shop/">МойМагазин</a>
         </div>
-        <div>
-            <a href="/shop/catalog/" style="color: white; margin-right: 15px;">Каталог</a>
+        <div class="header-links">
+            <a href="/shop/catalog/">Каталог</a>
             {% if user.is_authenticated %}
-                <span style="margin-right: 15px;">👤 {{ user.username }}</span>
-                <a href="/shop/cart/" style="color: white; margin-right: 15px;">🛒 Корзина</a>
-                <a href="/shop/logout/" style="color: white;">🚪 Выйти</a>
+                <span class="user-info">Пользователь: {{ user.username }}</span>
+                <a href="/shop/cart/">Корзина</a>
+                <a href="/shop/logout/">Выйти</a>
             {% else %}
-                <a href="/shop/login/" style="color: white; margin-right: 15px;">🔐 Войти</a>
-                <a href="/shop/registrate/" style="color: white;">📝 Регистрация</a>
+                <a href="/shop/login/">Войти</a>
+                <a href="/shop/registrate/">Регистрация</a>
             {% endif %}
         </div>
     </div>
 
-    <h1>🛍️ Каталог товаров</h1>
+    <h1>Каталог товаров</h1>
     
     <div class="catalog">
         {% for product in products %}
@@ -86,19 +113,19 @@
                 <p><strong>{{ product.category.name }}</strong></p>
                 <p>{{ product.manufacter.name }}</p>
                 <p class="price">{{ product.price }} BYN</p>
-                <p class="stock">
+                <p>
                     {% if product.quantity > 0 %}
-                        ✅ В наличии: {{ product.quantity }} шт.
+                        <span class="stock-in">В наличии: {{ product.quantity }} шт.</span>
                     {% else %}
-                        ❌ Нет в наличии
+                        <span class="stock-out">Нет в наличии</span>
                     {% endif %}
                 </p>
                 <p>{{ product.description|truncatewords:10 }}</p>
                 
-                <a href="/shop/catalog/{{ product.pk }}/" class="btn">Подробнее →</a>
+                <a href="/shop/catalog/{{ product.pk }}/" class="btn">Подробнее</a>
                 
                 {% if user.is_authenticated and product.quantity > 0 %}
-                    <a href="/shop/cart/add/{{ product.pk }}/" class="btn btn-cart">🛒 В корзину</a>
+                    <a href="/shop/cart/add/{{ product.pk }}/" class="btn btn-cart">В корзину</a>
                 {% endif %}
             </div>
         {% empty %}
@@ -107,7 +134,7 @@
     </div>
     
     <p style="margin-top: 30px;">
-        <a href="/shop/">← На главную</a>
+        <a href="/shop/">На главную</a>
     </p>
 </body>
 </html>

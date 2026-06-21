@@ -81,7 +81,7 @@
         </tr>
         <tr>
             <td>Производитель</td>
-            <td>{{ product.manufacter.name }} ({{ product.manufacter.country }})</td>
+            <td>{{ product.manufacter.name }} ({% if product.manufacter.country %}{{ product.manufacter.country }}{% else %}Не указана{% endif %})</td>
         </tr>
         <tr>
             <td>Цена</td>
@@ -91,34 +91,34 @@
             <td>Наличие</td>
             <td>
                 {% if product.quantity > 0 %}
-                    <span class="in-stock">✅ В наличии: {{ product.quantity }} шт.</span>
+                    <span class="in-stock">В наличии: {{ product.quantity }} шт.</span>
                 {% else %}
-                    <span class="out-stock">❌ Нет в наличии</span>
+                    <span class="out-stock">Нет в наличии</span>
                 {% endif %}
             </td>
         </tr>
     </table>
     
     <div class="section">
-        <h3>📝 Описание товара</h3>
+        <h3>Описание товара</h3>
         <p>{{ product.description }}</p>
     </div>
     
     <div class="section">
-        <h3>🏭 О производителе</h3>
+        <h3>О производителе</h3>
         <p>{{ product.manufacter.description }}</p>
     </div>
     
     <div class="section">
-        <h3>📂 О категории</h3>
+        <h3>О категории</h3>
         <p>{{ product.category.description }}</p>
     </div>
     
     <hr>
     
     <p>
-        <a href="/shop/catalog/" class="btn btn-back">← Назад в каталог</a>
-        <a href="/shop/" class="btn btn-back">🏠 На главную</a>
+        <a href="/shop/catalog/" class="btn btn-back">Назад в каталог</a>
+        <a href="/shop/" class="btn btn-back">На главную</a>
     </p>
 </body>
 </html>

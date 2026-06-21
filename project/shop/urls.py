@@ -10,6 +10,7 @@ router.register(r'productcategory', views.ProductCategoryViewSet)
 router.register(r'manufacter', views.ManufacterViewSet)
 router.register(r'cart', views.CartViewSet)
 router.register(r'cartselement', views.CartsElementViewSet)
+router.register(r'orders', views.OrderViewSet, basename='orders')
 
 urlpatterns = [
     path('author/', views.aboutauthor, name='author'),
@@ -26,6 +27,8 @@ urlpatterns = [
     path('cart/update/<int:product_id>/', views.update_elements_in_cart, name='update_cart'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('checkout/', views.checkout, name='checkout'),
+    path('api/me/', views.UserMeView.as_view(), name='user-me'), 
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
+    path('profile/', views.profile_page, name='profile_page'),
 ]

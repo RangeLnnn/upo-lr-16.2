@@ -15,6 +15,30 @@
             border-bottom: 2px solid #2196F3;
             padding-bottom: 10px;
         }
+        .header-nav {
+            background: #2196F3;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+        }
+        .header-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header-links a {
+            margin-left: 15px;
+        }
+        .user-info {
+            margin-left: 15px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -56,7 +80,7 @@
         }
         .btn-update {
             background: #ff9800;
-            padding: 5px 10px;
+            padding: 6px 12px;
             font-size: 14px;
         }
         .btn:hover {
@@ -83,46 +107,49 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+        .alert {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
-    <!-- ШАПКА -->
-    <div style="background: #2196F3; color: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 24px; font-weight: bold;">
-            <a href="/shop/" style="color: white; text-decoration: none;">🛍️ МойМагазин</a>
+    <div class="header-nav">
+        <div class="header-brand">
+            <a href="/shop/">МойМагазин</a>
         </div>
-        <div>
-            <a href="/shop/catalog/" style="color: white; margin-right: 15px;">Каталог</a>
+        <div class="header-links">
+            <a href="/shop/catalog/">Каталог</a>
             {% if user.is_authenticated %}
-                <span style="margin-right: 15px;">👤 {{ user.username }}</span>
-                <a href="/shop/cart/" style="color: white; margin-right: 15px;">🛒 Корзина</a>
-                <a href="/shop/logout/" style="color: white;">🚪 Выйти</a>
+                <span class="user-info">Пользователь: {{ user.username }}</span>
+                <a href="/shop/cart/">Корзина</a>
+                <a href="/shop/logout/">Выйти</a>
             {% else %}
-                <a href="/shop/login/" style="color: white; margin-right: 15px;">🔐 Войти</a>
-                <a href="/shop/registrate/" style="color: white;">📝 Регистрация</a>
+                <a href="/shop/login/">Войти</a>
+                <a href="/shop/registrate/">Регистрация</a>
             {% endif %}
         </div>
     </div>
 
-    <h1>🛒 Корзина</h1>
+    <h1>Корзина</h1>
     
     {% if messages %}
         <div style="margin: 10px 0;">
             {% for message in messages %}
-                <div style="
-                    padding: 12px 20px;
-                    border-radius: 4px;
-                    {% if message.tags == 'success' %}
-                        background: #d4edda;
-                        color: #155724;
-                    {% elif message.tags == 'warning' %}
-                        background: #fff3cd;
-                        color: #856404;
-                    {% elif message.tags == 'error' %}
-                        background: #f8d7da;
-                        color: #721c24;
-                    {% endif %}
-                ">
+                <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'error' %}alert-error{% endif %}">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -151,7 +178,7 @@
                                min="0" 
                                max="{{ item.product.quantity }}"
                                class="quantity-input">
-                        <button type="submit" class="btn btn-update" title="Обновить количество">↻</button>
+                        <button type="submit" class="btn btn-update" title="Обновить">Обновить</button>
                     </form>
                 </td>
                 <td>{% widthratio item.product.price 1 item.quantity %} руб.</td>
@@ -159,7 +186,7 @@
                     <a href="/shop/cart/remove/{{ item.id }}/" 
                        class="btn btn-delete" 
                        onclick="return confirm('Удалить {{ item.product.name }} из корзины?')">
-                        🗑️ Удалить
+                        Удалить
                     </a>
                 </td>
             </tr>
@@ -171,18 +198,18 @@
         </div>
         
         <p>
-            <a href="/shop/checkout/" class="btn">✅ Оформить заказ</a>
-            <a href="/shop/catalog/" class="btn btn-back">← Продолжить покупки</a>
+            <a href="/shop/checkout/" class="btn">Оформить заказ</a>
+            <a href="/shop/catalog/" class="btn btn-back">Продолжить покупки</a>
         </p>
     {% else %}
         <div class="empty-cart">
-            <p>🛒 Корзина пуста</p>
+            <p>Корзина пуста</p>
             <p><a href="/shop/catalog/" class="btn">Перейти в каталог</a></p>
         </div>
     {% endif %}
     
     <p style="margin-top: 30px;">
-        <a href="/shop/">🏠 На главную</a>
+        <a href="/shop/">На главную</a>
     </p>
 </body>
 </html>
