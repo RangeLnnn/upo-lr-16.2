@@ -14,7 +14,9 @@ ALLOWED_HOSTS = ['.up.railway.app', 'upo-lr-162-production.up.railway.app', 'loc
 if not DEBUG:
     ALLOWED_HOSTS.append('.onrender.com')
     ALLOWED_HOSTS.append('.up.railway.app')  
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://upo-lr-162-production.up.railway.app',
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
