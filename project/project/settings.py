@@ -16,7 +16,8 @@ ALLOWED_HOSTS = config(
 )
 
 if not DEBUG:
-    ALLOWED_HOSTS.append('.up.railway.app')
+    ALLOWED_HOSTS.append('.onrender.com')
+    ALLOWED_HOSTS.append('.up.railway.app')  
 
 INSTALLED_APPS = [
     'django.contrib.admin',
